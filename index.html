@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse Moment - Real-Time Super Bowl Marketing AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @keyframes pulse-border {
+            0%, 100% { border-color: #ef4444; }
+            50% { border-color: #fbbf24; }
+        }
+        .live-indicator {
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Mock event detection - in production this would call Gemini Vision API
+        const detectGameEvent = async (frameData) => {
+            // Simulate AI detection latency
+            await new Promise(r => setTimeout(r, Math.random() * 1000 + 500));
+            
+            const events = [
+                { type: 'touchdown', team: 'Chiefs', player: 'Patrick Mahomes', confidence: 0.95 },
+                { type: 'fumble', team: 'Eagles', player: 'Jalen Hurts', confidence: 0.88 },
+                { type: 'interception', team: 'Chiefs', player: 'L\'Jarius Sneed', confidence: 0.92 },
+                { type: 'field_goal', team: 'Eagles', player: 'Jake Elliott', confidence: 0.91 },
+                { type: 'big_play', team: 'Chiefs', player: 'Travis Kelce', yards: 45, confidence: 0.89 }
+            ];
+            
+            // 30% chance of detecting an event
+            if (Math.random() > 0.7) {
+                return events[Math.floor(Math.random() * events.length)];
+            }
+            return null;
+        };
+
+        // Generate marketing strategy using AI reasoning
+        const generateStrategy = async (event, businessType) => {
+            await new Promise(r => setTimeout(r, 800));
+            
+            const strategies = {
+                touchdown: {
+                    pizza: {
+                        hook: "Score a deal as sweet as that touchdown!",
+                        offer: "25% off large pizzas for the next 15 minutes",
+                        cta: "Order now - this deal expires faster than the replay!",
+                        urgency: "15-minute flash sale"
+                    },
+                    insurance: {
+                        hook: "Touchdown = Protection. Just like our coverage.",
+                        offer: "Free quote + $50 gift card for new policies",
+                        cta: "Get protected while you celebrate",
+                        urgency: "Limited to next 50 quotes"
+                    },
+                    gym: {
+                        hook: "That touchdown took athletic power. So will you.",
+                        offer: "1 month free with any membership signup",
+                        cta: "Join the winning team",
+                        urgency: "Tonight only"
+                    }
+                },
+                fumble: {
+                    pizza: {
+                        hook: "Unlike that fumble, we've got a grip on great deals!",
+                        offer: "Buy 1 Get 1 Free on medium pizzas",
+                        cta: "Don't fumble this opportunity!",
+                        urgency: "Next 20 minutes only"
+                    },
+                    insurance: {
+                        hook: "Fumbles happen. Be prepared for life's surprises.",
+                        offer: "Fumble-Proof insurance - 20% off new policies",
+                        cta: "Protect what matters most",
+                        urgency: "48-hour special"
+                    },
+                    gym: {
+                        hook: "Drop the ball on excuses, not your fitness goals",
+                        offer: "50% off personal training packages",
+                        cta: "Recover stronger",
+                        urgency: "This week only"
+                    }
+                },
+                interception: {
+                    pizza: {
+                        hook: "We intercept hunger with hot, fresh pizza!",
+                        offer: "30% off + free delivery on orders over $25",
+                        cta: "Snag this deal now!",
+                        urgency: "Active until halftime"
+                    },
+                    insurance: {
+                        hook: "Intercept financial risk before it intercepts you",
+                        offer: "Free risk assessment + discounted bundle",
+                        cta: "Take control today",
+                        urgency: "Game day special"
+                    },
+                    gym: {
+                        hook: "Intercept your goals. Make the play for health.",
+                        offer: "Free fitness assessment + 3 free classes",
+                        cta: "Start your winning season",
+                        urgency: "New members this weekend"
+                    }
+                }
+            };
+
+            const eventStrategies = strategies[event.type] || strategies.touchdown;
+            return eventStrategies[businessType] || eventStrategies.pizza;
+        };
+
+        // Generate visual content
+        const generateVisual = async (event, strategy) => {
+            await new Promise(r => setTimeout(r, 1200));
+            
+            // In production, this calls Flux API
+            return {
+                imageUrl: `https://placehold.co/1200x630/1e40af/ffffff?text=${encodeURIComponent(strategy.hook)}`,
+                altText: `Marketing image: ${strategy.hook}`
+            };
+        };
+
+        function PulseMoment() {
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [currentEvent, setCurrentEvent] = useState(null);
+            const [strategy, setStrategy] = useState(null);
+            const [visual, setVisual] = useState(null);
+            const [businessType, setBusinessType] = useState('pizza');
+            const [processingLog, setProcessingLog] = useState([]);
+            const [detectedEvents, setDetectedEvents] = useState([]);
+            const [latency, setLatency] = useState(null);
+            const videoRef = useRef(null);
+            const intervalRef = useRef(null);
+
+            const addLog = (message, type = 'info') => {
+                setProcessingLog(prev => [...prev, { 
+                    message, 
+                    type, 
+                    timestamp: new Date().toLocaleTimeString() 
+                }]);
+            };
+
+            const processFrame = async () => {
+                if (isProcessing) return;
+                
+                const startTime = Date.now();
+                setIsProcessing(true);
+                setCurrentEvent(null);
+                setStrategy(null);
+                setVisual(null);
+
+                try {
+                    // Step 1: Detect event
+                    addLog('🎥 Analyzing video frame...', 'processing');
+                    const event = await detectGameEvent(null);
+                    
+                    if (event) {
+                        const elapsed1 = ((Date.now() - startTime) / 1000).toFixed(2);
+                        addLog(`✅ Event detected: ${event.type.toUpperCase()} (${elapsed1}s)`, 'success');
+                        setCurrentEvent(event);
+
+                        // Step 2: Generate strategy
+                        addLog('🧠 Generating marketing strategy...', 'processing');
+                        const strat = await generateStrategy(event, businessType);
+                        const elapsed2 = ((Date.now() - startTime) / 1000).toFixed(2);
+                        addLog(`✅ Strategy created (${elapsed2}s)`, 'success');
+                        setStrategy(strat);
+
+                        // Step 3: Generate visual
+                        addLog('🎨 Creating promotional visual...', 'processing');
+                        const vis = await generateVisual(event, strat);
+                        const totalElapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+                        addLog(`✅ Visual ready! Total: ${totalElapsed}s`, 'success');
+                        setVisual(vis);
+                        setLatency(totalElapsed);
+
+                        // Add to detected events
+                        setDetectedEvents(prev => [{
+                            event,
+                            strategy: strat,
+                            visual: vis,
+                            timestamp: new Date().toISOString(),
+                            latency: totalElapsed
+                        }, ...prev].slice(0, 5));
+                    } else {
+                        addLog('⚪ No significant event detected', 'info');
+                    }
+                } catch (error) {
+                    addLog(`❌ Error: ${error.message}`, 'error');
+                } finally {
+                    setIsProcessing(false);
+                }
+            };
+
+            const startMonitoring = () => {
+                addLog('🚀 Starting real-time monitoring...', 'success');
+                intervalRef.current = setInterval(processFrame, 5000); // Check every 5 seconds
+            };
+
+            const stopMonitoring = () => {
+                if (intervalRef.current) {
+                    clearInterval(intervalRef.current);
+                    intervalRef.current = null;
+                    addLog('⏸️ Monitoring paused', 'info');
+                }
+            };
+
+            useEffect(() => {
+                return () => stopMonitoring();
+            }, []);
+
+            const postToSocial = (platform) => {
+                addLog(`📱 Content posted to ${platform}!`, 'success');
+                alert(`Content would be posted to ${platform}!\n\n${strategy.hook}\n${strategy.offer}\n${strategy.cta}`);
+            };
+
+            return (
+                <div className="min-h-screen p-8">
+                    {/* Header */}
+                    <div className="max-w-7xl mx-auto mb-8">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                                    Pulse Moment
+                                </h1>
+                                <p className="text-gray-400 mt-2">Real-Time Super Bowl Marketing AI</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                    <div className="text-sm text-gray-400">Business Type</div>
+                                    <select 
+                                        value={businessType}
+                                        onChange={(e) => setBusinessType(e.target.value)}
+                                        className="bg-gray-800 border border-gray-700 rounded px-4 py-2 mt-1"
+                                    >
+                                        <option value="pizza">Pizza Restaurant</option>
+                                        <option value="insurance">Insurance Agency</option>
+                                        <option value="gym">Fitness Gym</option>
+                                    </select>
+                                </div>
+                                {latency && (
+                                    <div className="bg-green-500 text-white px-4 py-2 rounded-lg">
+                                        <div className="text-xs">Latency</div>
+                                        <div className="text-2xl font-bold">{latency}s</div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="max-w-7xl mx-auto grid grid-cols-3 gap-6">
+                        {/* Left Column - Video Feed & Controls */}
+                        <div className="space-y-6">
+                            <div className="bg-gray-800 rounded-lg p-6 border-4 live-indicator">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-xl font-bold">🎥 Live Feed</h2>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                        <span className="text-sm text-red-500 font-semibold">LIVE</span>
+                                    </div>
+                                </div>
+                                <div className="aspect-video bg-black rounded-lg flex items-center justify-center mb-4">
+                                    <div className="text-center">
+                                        <div className="text-6xl mb-2">🏈</div>
+                                        <div className="text-gray-400">Super Bowl LX</div>
+                                        <div className="text-sm text-gray-500 mt-1">Demo: Using YouTube feed</div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    {!intervalRef.current ? (
+                                        <button
+                                            onClick={startMonitoring}
+                                            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition"
+                                        >
+                                            ▶️ Start Monitoring
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={stopMonitoring}
+                                            className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition"
+                                        >
+                                            ⏸️ Pause
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={processFrame}
+                                        disabled={isProcessing}
+                                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white py-3 rounded-lg font-semibold transition"
+                                    >
+                                        {isProcessing ? '⏳ Processing...' : '🔄 Manual Check'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Processing Log */}
+                            <div className="bg-gray-800 rounded-lg p-6">
+                                <h2 className="text-xl font-bold mb-4">📊 AI Processing Log</h2>
+                                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                    {processingLog.slice(-10).reverse().map((log, i) => (
+                                        <div 
+                                            key={i}
+                                            className={`text-sm p-2 rounded slide-in ${
+                                                log.type === 'success' ? 'bg-green-900/30 text-green-300' :
+                                                log.type === 'error' ? 'bg-red-900/30 text-red-300' :
+                                                log.type === 'processing' ? 'bg-blue-900/30 text-blue-300' :
+                                                'bg-gray-700 text-gray-300'
+                                            }`}
+                                        >
+                                            <span className="text-gray-500 mr-2">{log.timestamp}</span>
+                                            {log.message}
+                                        </div>
+                                    ))}
+                                    {processingLog.length === 0 && (
+                                        <div className="text-gray-500 text-center py-8">
+                                            No activity yet. Start monitoring to begin.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Middle Column - Event Detection & Strategy */}
+                        <div className="space-y-6">
+                            {currentEvent ? (
+                                <div className="bg-gradient-to-br from-blue-900 to-purple-900 rounded-lg p-6 glow-effect">
+                                    <h2 className="text-xl font-bold mb-4">🎯 Detected Event</h2>
+                                    <div className="space-y-3">
+                                        <div className="bg-black/30 rounded p-3">
+                                            <div className="text-sm text-gray-400">Event Type</div>
+                                            <div className="text-2xl font-bold uppercase">{currentEvent.type}</div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="bg-black/30 rounded p-3">
+                                                <div className="text-sm text-gray-400">Team</div>
+                                                <div className="text-lg font-semibold">{currentEvent.team}</div>
+                                            </div>
+                                            <div className="bg-black/30 rounded p-3">
+                                                <div className="text-sm text-gray-400">Confidence</div>
+                                                <div className="text-lg font-semibold">{(currentEvent.confidence * 100).toFixed(0)}%</div>
+                                            </div>
+                                        </div>
+                                        {currentEvent.player && (
+                                            <div className="bg-black/30 rounded p-3">
+                                                <div className="text-sm text-gray-400">Player</div>
+                                                <div className="text-lg font-semibold">{currentEvent.player}</div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-gray-800 rounded-lg p-6 h-64 flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                        <div className="text-4xl mb-2">👁️</div>
+                                        <div>Watching for game events...</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {strategy && (
+                                <div className="bg-gray-800 rounded-lg p-6">
+                                    <h2 className="text-xl font-bold mb-4">🧠 Marketing Strategy</h2>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <div className="text-sm text-gray-400 mb-1">Hook</div>
+                                            <div className="text-lg font-semibold text-yellow-400">{strategy.hook}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-400 mb-1">Offer</div>
+                                            <div className="text-xl font-bold text-green-400">{strategy.offer}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-400 mb-1">Call to Action</div>
+                                            <div className="font-semibold">{strategy.cta}</div>
+                                        </div>
+                                        <div className="bg-red-900/30 border border-red-500 rounded p-3">
+                                            <div className="text-sm text-gray-400 mb-1">⏰ Urgency</div>
+                                            <div className="font-bold text-red-400">{strategy.urgency}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Right Column - Generated Content & Actions */}
+                        <div className="space-y-6">
+                            {visual && (
+                                <div className="bg-gray-800 rounded-lg p-6">
+                                    <h2 className="text-xl font-bold mb-4">🎨 Generated Content</h2>
+                                    <img 
+                                        src={visual.imageUrl} 
+                                        alt={visual.altText}
+                                        className="w-full rounded-lg mb-4"
+                                    />
+                                    <div className="space-y-2">
+                                        <button
+                                            onClick={() => postToSocial('Instagram')}
+                                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-semibold transition"
+                                        >
+                                            📸 Post to Instagram
+                                        </button>
+                                        <button
+                                            onClick={() => postToSocial('Facebook')}
+                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
+                                        >
+                                            📘 Post to Facebook
+                                        </button>
+                                        <button
+                                            onClick={() => postToSocial('Twitter/X')}
+                                            className="w-full bg-black hover:bg-gray-900 text-white py-3 rounded-lg font-semibold transition"
+                                        >
+                                            𝕏 Post to Twitter/X
+                                        </button>
+                                        <button
+                                            className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold transition"
+                                        >
+                                            💾 Save for Later
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Recent Events */}
+                            <div className="bg-gray-800 rounded-lg p-6">
+                                <h2 className="text-xl font-bold mb-4">📜 Recent Events</h2>
+                                <div className="space-y-3 max-h-96 overflow-y-auto">
+                                    {detectedEvents.map((item, i) => (
+                                        <div key={i} className="bg-gray-700 rounded p-3 text-sm">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="font-bold uppercase text-blue-400">
+                                                    {item.event.type}
+                                                </span>
+                                                <span className="text-xs text-gray-400">
+                                                    {item.latency}s
+                                                </span>
+                                            </div>
+                                            <div className="text-gray-300">{item.strategy.hook}</div>
+                                            <div className="text-green-400 text-xs mt-1">{item.strategy.offer}</div>
+                                        </div>
+                                    ))}
+                                    {detectedEvents.length === 0 && (
+                                        <div className="text-gray-500 text-center py-8">
+                                            No events detected yet
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer Stats */}
+                    <div className="max-w-7xl mx-auto mt-8 grid grid-cols-4 gap-4">
+                        <div className="bg-gray-800 rounded-lg p-4 text-center">
+                            <div className="text-3xl font-bold text-blue-400">{detectedEvents.length}</div>
+                            <div className="text-sm text-gray-400">Events Detected</div>
+                        </div>
+                        <div className="bg-gray-800 rounded-lg p-4 text-center">
+                            <div className="text-3xl font-bold text-green-400">
+                                {detectedEvents.length > 0 
+                                    ? (detectedEvents.reduce((sum, e) => sum + parseFloat(e.latency), 0) / detectedEvents.length).toFixed(2)
+                                    : '0.00'
+                                }s
+                            </div>
+                            <div className="text-sm text-gray-400">Avg Response Time</div>
+                        </div>
+                        <div className="bg-gray-800 rounded-lg p-4 text-center">
+                            <div className="text-3xl font-bold text-purple-400">{detectedEvents.length * 3}</div>
+                            <div className="text-sm text-gray-400">Content Pieces Generated</div>
+                        </div>
+                        <div className="bg-gray-800 rounded-lg p-4 text-center">
+                            <div className="text-3xl font-bold text-yellow-400">
+                                {intervalRef.current ? '🟢 ACTIVE' : '⚪ PAUSED'}
+                            </div>
+                            <div className="text-sm text-gray-400">System Status</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<PulseMoment />, document.getElementById('root'));
+    </script>
+</body>
+</html>
