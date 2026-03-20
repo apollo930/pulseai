@@ -1,4 +1,4 @@
-# 🏈 Pulse Moment - Real-Time Super Bowl Marketing AI
+# 🏈 Real-Time Super Bowl Marketing Demo Website
 
 **Tagline:** *Madison Avenue has 6 months. You have 6 seconds.*
 
@@ -424,8 +424,7 @@ const generateImage = async (prompt) => {
 
 ## 📞 Contact
 
-- **Demo:** [Live URL here]
-- **Repo:** [GitHub link]
-- **Team:** [Your contact info]
+- **Demo:** https://pulseai-azure.vercel.app
+- **Team:** aditya.u@nyu.edu
 
 **Let's make every business as fast as the internet.**
